@@ -1,0 +1,51 @@
+apply plugin: 'com.android.application'
+
+//加载签名配置文件
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+android {
+    def versions = rootProject.ext.versions
+    compileSdkVersion versions.compileSdkVersion
+    defaultConfig {
+        applicationId "com.czq.arouter"
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
+        versionCode versions.versionCode
+        versionName versions.versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs {
+        myConfig {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.myConfig
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.myConfig
+        }
+    }
+}
+
+dependencies {
+    def dependencies = rootProject.ext.deps
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation dependencies.suport.appcompat
+    implementation dependencies.suport.recyclerview
+    implementation project(':module_login')
+    implementation project(':module_main')
+    implementation project(':module_common')
+}
